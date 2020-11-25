@@ -1,106 +1,81 @@
 #include "hsh.h"
+/**
+ * str_len - Calculates the lenght of a string.
+ * @str: String that needs length to be found.
+ * Return: Upon success returns the length of a string. otherwise 0.
+ */
+int str_len(char *str)
+{
+	int i;
+
+	if (str == NULL)
+		return (0);
+	for (i = 0; str[i] != '\0'; i++)
+		;
+	return (i);
+}
 
 /**
- * cd_b - Changes the current working directory to the parameter passed to cd.
- * if no parameter is passed it will change directory to HOME.
- * @line: A string representing the input from the user.
+ * double_free - Free double pointer variables.
+ * @to_be_freed: The address of the elements that need to be freed.
  */
-void cd_b(char *line)
+void double_free(char **to_be_freed)
 {
 	int index;
-	int token_count;
-	char **param_array;
-	const char *delim = "\n\t ";
 
-	token_count = 0;
-	param_array = token_interface(line, delim, token_count);
-	if (param_array[0] == NULL)
-	{
-		single_free(2, param_array, line);
-		return;
-	}
-	if (param_array[1] == NULL)
-	{
-		index = find_path("HOME");
-		chdir((environ[index]) + 5);
-	}
-	else if (_strcmp(param_array[1], "-") == 0)
-		print_str(param_array[1], 0);
-
-	else
-		chdir(param_array[1]);
-	double_free(param_array);
+	for (index = 0; to_be_freed[index] != NULL; index++)
+		free(to_be_freed[index]);
+	free(to_be_freed);
 }
 
 /**
- * env_b - Prints all the environmental variables in the current shell.
- * @line: A string representing the input from the user.
+ * single_free - Will free a n amount of pointers to a string.
+ * @n: The number of pointers to free.
  */
-void env_b(__attribute__((unused))char *line)
+void single_free(int n, ...)
 {
 	int i;
-	int j;
+	char *str;
+	va_list a_list;
 
-	for (i = 0; environ[i] != NULL; i++)
+	va_start(a_list, n);
+	for (i = 0; i < n; i++)
 	{
-		for (j = 0; environ[i][j] != '\0'; j++)
-			write(STDOUT_FILENO, &environ[i][j], 1);
-		write(STDOUT_FILENO, "\n", 1);
+		str = va_arg(a_list, char*);
+		if (str == NULL)
+			str = "(nil)";
+		free(str);
 	}
+	va_end(a_list);
+}
+
+
+/**
+ * error_printing - Prints a message error when a comand is not found.
+ * @count: A counter keeping track of the number of commands run on the shell.
+ * @av: The name of the program running the shell.
+ * @command: The specific command not being found.
+ */
+void error_printing(char *av, int count, char *command)
+{
+	print_str(av, 1);
+	print_str(": ", 1);
+	print_number(count);
+	print_str(": ", 1);
+	print_str(command, 1);
 }
 
 /**
- * exit_b - Exits the shell. After freeing allocated resources.
- * @line: A string representing the input from the user.
+ * exec_error - Prints exec errors.
+ * @av: The name of the program running the shell.
+ * @count: Keeps track of how many commands have been entered.
+ * @tmp_command: The command that filed.
  */
-void exit_b(char *line)
+
+void exec_error(char *av, int count, char *tmp_command)
 {
-	free(line);
-	print_str("\n", 1);
+	error_printing(av, count, tmp_command);
+	print_str(": ", 1);
+	perror("");
 	exit(1);
-}
-
-/**
- * check_built_ins - Finds the right function needed for execution.
- * @str: The name of the function that is needed.
- * Return: Upon sucess a pointer to a void function. Otherwise NULL.
- */
-void (*check_built_ins(char *str))(char *str)
-{
-	int i;
-
-	builtin_t buildin[] = {
-		{"exit", exit_b},
-		{"env", env_b},
-		{"cd", cd_b},
-		{NULL, NULL}
-	};
-
-	for (i = 0; buildin[i].built != NULL; i++)
-	{
-		if (_strcmp(str, buildin[i].built) == 0)
-		{
-			return (buildin[i].f);
-		}
-	}
-	return (NULL);
-}
-
-/**
- * built_in - Checks for builtin functions.
- * @command: An array of all the arguments passed to the shell.
- * @line: A string representing the input from the user.
- * Return: If function is found 0. Otherwise -1.
- */
-int built_in(char **command, char *line)
-{
-	void (*build)(char *);
-
-	build = check_built_ins(command[0]);
-	if (build == NULL)
-		return (-1);
-	if (_strcmp("exit", command[0]) == 0)
-		double_free(command);
-	build(line);
-	return (0);
 }
