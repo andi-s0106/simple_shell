@@ -15,7 +15,7 @@ void parse_line(char *line, size_t size, int command_counter, char **av)
 	ssize_t read_len;
 	int token_count;
 	char **param_array;
-	const char *delim = "\n\t ";
+	const char *delim = "\n\t |";
 
 	token_count = 0;
 	write(STDOUT_FILENO, PROMPT, str_len(PROMPT));
