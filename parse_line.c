@@ -119,8 +119,7 @@ char **token_interface(char *line, const char *delim, int token_count)
 }
 
 /**
- * tokenize - Separates a string into an array of tokens. DON'T FORGET TO FREE
- * on receiving function when using tokenize.
+ * tokenize - Separates a string into an array of tokens.
  * @token_count: An integer representing the amount of tokens in the array.
  * @line: String that is separated by an specified delimeter
  * @delim: The desired delimeter to separate tokens.
