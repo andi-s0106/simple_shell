@@ -65,7 +65,6 @@ void create_child(char **param_array, char *line, int count, char **av)
 		command = path_finder(param_array[0]);
 		if (command == NULL)
 		{
-			/*Looking for file in current directory*/
 			check = stat(tmp_command, &buf);
 			if (check == -1)
 			{
@@ -77,7 +76,6 @@ void create_child(char **param_array, char *line, int count, char **av)
 				free(param_array);
 				exit(100);
 			}
-			/*file exist in cwd or has full path*/
 			command = tmp_command;
 		}
 		param_array[0] = command;
